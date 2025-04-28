@@ -7,6 +7,7 @@
   &-list {
     display: flex;
     will-change: transform;
+    transition: transform 0.5s ease;
   }
 
   .carousel-list {
@@ -75,6 +76,7 @@
   &-track {
     overflow: hidden;
     margin: 0 auto;
+    position: relative;
   }
 
   &-button {

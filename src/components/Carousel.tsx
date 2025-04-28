@@ -127,26 +127,18 @@ export const Carousel: React.FC<CarouselProps> = ({
               transition: `transform ${animationDuration}ms ease`,
               width: `${images.length * currentSettings.itemWidth}px`,
             }}
-            data-cy="carousel-list"
           >
             {images.map((image, index) => (
               <li
                 key={index}
                 className="carousel-item"
                 style={{ width: `${currentSettings.itemWidth}px` }}
-                data-cy={`item-${index}`}
               >
-                <img
-                  src={image}
-                  alt={`Slide ${index}`}
-                  data-cy="carousel-image"
-                  width={currentSettings.itemWidth}
-                />
+                <img src={image} alt={`Slide ${index}`} />
               </li>
             ))}
           </ul>
         </div>
-
         <button
           className="carousel-button next"
           onClick={handleNext}
