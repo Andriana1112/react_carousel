@@ -15,6 +15,8 @@ export const Carousel: React.FC<CarouselProps> = ({
   itemWidth = 130,
   frameSize = 3,
   step = 3,
+  animationDuration = 500,
+  infinite = false,
 }) => {
   const [currentIndex, setCurrentIndex] = useState(0);
   const [currentSettings, setCurrentSettings] = useState({
@@ -23,18 +25,33 @@ export const Carousel: React.FC<CarouselProps> = ({
     step,
   });
 
-  const maxIndex = images.length - currentSettings.frameSize;
+  const totalItems = images.length;
+  const maxIndex = infinite
+    ? totalItems
+    : totalItems - currentSettings.frameSize;
 
   const handleNext = () => {
-    const newIndex = currentIndex + currentSettings.step;
+    let newIndex = currentIndex + currentSettings.step;
 
-    setCurrentIndex(Math.min(newIndex, maxIndex));
+    if (infinite) {
+      newIndex = newIndex % totalItems;
+    } else {
+      newIndex = Math.min(newIndex, totalItems - currentSettings.frameSize);
+    }
+
+    setCurrentIndex(newIndex);
   };
 
   const handlePrev = () => {
-    const newIndex = currentIndex - currentSettings.step;
+    let newIndex = currentIndex - currentSettings.step;
 
-    setCurrentIndex(Math.max(newIndex, 0));
+    if (infinite) {
+      newIndex = (newIndex + totalItems) % totalItems;
+    } else {
+      newIndex = Math.max(newIndex, 0);
+    }
+
+    setCurrentIndex(newIndex);
   };
 
   const updateSetting = (
@@ -45,7 +62,7 @@ export const Carousel: React.FC<CarouselProps> = ({
       ...prev,
       [key]: value,
     }));
-    setCurrentIndex(0); // Reset to first page when settings change
+    setCurrentIndex(0);
   };
 
   return (
@@ -91,7 +108,7 @@ export const Carousel: React.FC<CarouselProps> = ({
         <button
           className="carousel-button prev"
           onClick={handlePrev}
-          disabled={currentIndex === 0}
+          disabled={!infinite && currentIndex === 0}
           data-cy="prev"
         >
           Prev
@@ -103,25 +120,25 @@ export const Carousel: React.FC<CarouselProps> = ({
             width: `${currentSettings.frameSize * currentSettings.itemWidth}px`,
           }}
         >
-          <ul className="carousel-list">
+          <ul
+            className="carousel-list"
+            style={{
+              transform: `translateX(-${currentIndex * currentSettings.itemWidth}px)`,
+              transition: `transform ${animationDuration}ms ease`,
+              width: `${images.length * currentSettings.itemWidth}px`,
+            }}
+            data-cy="carousel-list"
+          >
             {images.map((image, index) => (
               <li
                 key={index}
                 className="carousel-item"
-                style={{
-                  width: `${currentSettings.itemWidth}px`,
-                  display:
-                    index >= currentIndex &&
-                    index < currentIndex + currentSettings.frameSize
-                      ? 'block'
-                      : 'none',
-                }}
+                style={{ width: `${currentSettings.itemWidth}px` }}
                 data-cy={`item-${index}`}
               >
                 <img
                   src={image}
                   alt={`Slide ${index}`}
-                  style={{ width: `${currentSettings.itemWidth}px` }}
                   data-cy="carousel-image"
                   width={currentSettings.itemWidth}
                 />
@@ -133,7 +150,7 @@ export const Carousel: React.FC<CarouselProps> = ({
         <button
           className="carousel-button next"
           onClick={handleNext}
-          disabled={currentIndex >= maxIndex}
+          disabled={!infinite && currentIndex >= maxIndex}
           data-cy="next"
         >
           Next
